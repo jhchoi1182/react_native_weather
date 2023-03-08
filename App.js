@@ -7,9 +7,10 @@ import * as Location from 'expo-location';
 const { width: ScreenWidth } = Dimensions.get('window');
 const API_KEY = '050d4b026cee0fc9716845267b7b107c'
 
+
 export default function App() {
   const [city, setCity] = useState("로딩중...")
-  const [days, setDays] = useState([])
+  const [days, setDays] = useState({})
   const [ok, setOk] = useState(true)
 
   const getWeather = async () => {
@@ -20,9 +21,9 @@ export default function App() {
     const { coords: { latitude, longitude } } = await Location.getCurrentPositionAsync({ accuracy: 5 })
     const location = await Location.reverseGeocodeAsync({ latitude, longitude }, { useGoogleMaps: false })
     setCity(location[0].city);
-    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`)
+    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`)
     const json = await response.json()
-    setDays([json]);
+    setDays(json);
   }
 
   useEffect(() => {
@@ -40,12 +41,10 @@ export default function App() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.weather}>
         {days.length === 0 ? <View style={styles.day}><ActivityIndicator size="large" /></View> :
-          days.map((day, i) => {
-            <View key={i} style={styles.day}>
-              <Text style={styles.temperature}>{parseFloat(day.main.temp).toFixed(1)}</Text>
-              <Text style={styles.description}>{day.weather[0].main}</Text>
-            </View>
-          })
+          <View style={styles.day}>
+            <Text style={styles.temperature}>{parseFloat(days.main.temp).toFixed(1)}도</Text>
+            <Text style={styles.description}>{days.weather[0].main}</Text>
+          </View>
         }
       </ScrollView>
       <StatusBar style="light" />
@@ -76,10 +75,10 @@ const styles = StyleSheet.create({
   },
   temperature: {
     marginTop: 50,
-    fontSize: 138
+    fontSize: 90
   },
   description: {
-    marginTop: -30,
+    marginTop: -10,
     fontSize: 60
   }
 });
