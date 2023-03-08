@@ -3,10 +3,14 @@ import { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 import { StyleSheet, Dimensions, Text, View, ActivityIndicator } from 'react-native';
 import * as Location from 'expo-location';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const { width: ScreenWidth } = Dimensions.get('window');
 const API_KEY = '050d4b026cee0fc9716845267b7b107c'
-
+const icons = {
+  Clouds: "weather-cloudy",
+  Clear: "weather-sunny"
+}
 
 export default function App() {
   const [city, setCity] = useState("로딩중...")
@@ -23,7 +27,7 @@ export default function App() {
     setCity(location[0].city);
     const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`)
     const json = await response.json()
-    setDays(json);
+    setDays([json])
   }
 
   useEffect(() => {
@@ -42,13 +46,16 @@ export default function App() {
         contentContainerStyle={styles.weather}>
         {days.length === 0 ? <View style={styles.day}><ActivityIndicator size="large" /></View> :
           <View style={styles.day}>
-            <Text style={styles.temperature}>{parseFloat(days.main.temp).toFixed(1)}도</Text>
-            <Text style={styles.description}>{days.weather[0].main}</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+              <Text style={styles.temperature}>{parseFloat(days[0]?.main?.temp).toFixed(1)}도</Text>
+              <MaterialCommunityIcons name={icons[days[0]?.weather[0]?.main]} size={54} color="black" />
+            </View>
+            <Text style={styles.description}>{days[0]?.weather[0]?.main}</Text>
           </View>
         }
-      </ScrollView>
+      </ScrollView >
       <StatusBar style="light" />
-    </View>
+    </View >
   );
 }
 
@@ -75,10 +82,10 @@ const styles = StyleSheet.create({
   },
   temperature: {
     marginTop: 50,
-    fontSize: 90
+    fontSize: 80
   },
   description: {
     marginTop: -10,
-    fontSize: 60
+    fontSize: 50
   }
 });
